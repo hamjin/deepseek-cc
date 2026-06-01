@@ -1,0 +1,29 @@
+services:
+  proxy:
+    build:
+      context: .
+      target: runtime
+    image: deepseek-anthropic-thinking-proxy:local
+    env_file:
+      - .env
+    environment:
+      DB_PATH: /data/deepseek_anthropic_proxy.sqlite3
+      LOG_DIR: /data/log
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${PROXY_HOST:-127.0.0.1}:${PROXY_PORT:-8000}:8000"
+    volumes:
+      - proxy-data:/data
+    init: true
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  proxy-data:
